@@ -9,7 +9,8 @@ SpiderVerse AI is a graph-first exploration tool for characters, variants, unive
 - A deterministic seed dataset with 59 characters, 18 universes, 50 works, 10 events, teams, powers, and 574 relationships.
 - Dataset validation for IDs, duplicates, dangling edges, universe references, variants, and relation provenance.
 - A FastAPI service with local JSON storage by default and an optional Neo4j adapter.
-- Search, entity details, neighborhood expansion, universe filtering, and shortest-path queries.
+- Lexical, semantic, and hybrid entity search with transparent ranking scores.
+- Entity details, neighborhood expansion, universe filtering, and shortest-path queries.
 - A graph-grounded `Ask` endpoint that answers from retrieved graph facts without an LLM.
 - A React + TypeScript + Cytoscape.js explorer with character, universe, and path-finder views.
 - Deterministic graph analytics for degree, betweenness, communities, and structural character similarity.
@@ -95,6 +96,31 @@ Available endpoints:
 
 Implementation choices, measured V1 results, limitations, and reproduction commands are in
 [the Phase 5 report](reports/phase5_graph_analytics.md).
+
+## Semantic search
+
+Phase 6 derives one deterministic search document per graph entity and keeps the Knowledge Graph
+as the source of truth. The API preserves the V1 lexical default while exposing three explicit
+modes:
+
+- `GET /api/search?q=Miles%20Morales&mode=lexical`
+- `GET /api/search?q=Spider-Man%20from%20the%20future&mode=semantic`
+- `GET /api/search?q=symbiote%20enemy&mode=hybrid`
+
+Semantic search uses the local, non-generative
+[`sentence-transformers/multi-qa-MiniLM-L6-cos-v1`](https://huggingface.co/sentence-transformers/multi-qa-MiniLM-L6-cos-v1)
+model at an immutable revision. The 384-dimensional normalized embeddings stay in a small
+in-memory matrix; no vector database, API key, LLM, or persisted model/index artifact is required.
+The first semantic request downloads the model into the user cache when it is not already present.
+
+Run the deterministic 15-query comparison:
+
+```powershell
+python scripts/benchmark_search.py
+```
+
+The measured ranking, architecture, JSON/Neo4j parity, performance, validation, and limitations
+are documented in [the Phase 6 report](reports/phase6_semantic_search.md).
 
 ## Important data note
 

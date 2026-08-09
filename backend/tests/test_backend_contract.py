@@ -1,6 +1,23 @@
+from collections.abc import Sequence
+
+import numpy as np
+from numpy.typing import NDArray
+
 from backend.app.config import settings
 from backend.app.graph_store import GraphStore
-from scripts.compare_backends import collect_contract
+from scripts.compare_backends import collect_contract, collect_search_contract
+
+
+class ContractEncoder:
+    model_name = "test/contract-encoder"
+    model_revision = "test-revision"
+
+    def encode_documents(self, texts: Sequence[str]) -> NDArray[np.float32]:
+        return np.ones((len(texts), 2), dtype=np.float32) / np.sqrt(2)
+
+    def encode_query(self, text: str) -> NDArray[np.float32]:
+        del text
+        return np.ones(2, dtype=np.float32) / np.sqrt(2)
 
 
 def test_json_backend_conformance_contract() -> None:
@@ -42,3 +59,13 @@ def test_json_backend_conformance_contract() -> None:
     )
     assert contract["analytics_communities"]["algorithm"] == "greedy_modularity"
     assert contract["analytics_miles_similarity"]["source"]["id"] == "miles-1610"
+
+
+def test_search_contract_is_reproducible_for_equivalent_backends() -> None:
+    first = GraphStore.from_path(settings.graph_data_path)
+    second = GraphStore(
+        {"nodes": list(reversed(first.nodes)), "edges": list(reversed(first.edges))}
+    )
+    assert collect_search_contract(first, settings, ContractEncoder()) == collect_search_contract(
+        second, settings, ContractEncoder()
+    )

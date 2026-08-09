@@ -10,6 +10,10 @@ COPY backend ./backend
 COPY data ./data
 COPY scripts ./scripts
 
+ARG TORCH_VERSION=2.13.0
+RUN pip install --no-cache-dir \
+    --index-url https://download.pytorch.org/whl/cpu \
+    "torch==${TORCH_VERSION}"
 RUN pip install --no-cache-dir ".[neo4j]"
 
 EXPOSE 8000

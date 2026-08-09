@@ -8,6 +8,14 @@ from backend.app.analytics_service import GraphAnalyticsService
 from backend.app.config import Settings, settings
 from backend.app.graph_store import GraphStore, load_neo4j
 from backend.app.query_service import QueryService
+from backend.app.search_service import (
+    EmbeddingEncoder,
+    SearchMode,
+    SearchService,
+    SentenceTransformerEncoder,
+)
+
+SEARCH_MODES: tuple[SearchMode, ...] = ("lexical", "semantic", "hybrid")
 
 
 def _canonical(value: Any) -> Any:
@@ -122,6 +130,42 @@ def collect_contract(store: GraphStore) -> dict[str, Any]:
     }
 
 
+def collect_search_contract(
+    store: GraphStore,
+    search_settings: Settings,
+    encoder: EmbeddingEncoder,
+) -> dict[str, Any]:
+    service = SearchService(store, search_settings, encoder=encoder)
+    documents = [
+        {"id": document.entity_id, "text": document.text} for document in service.documents
+    ]
+    results = {}
+    benchmark_path = (
+        search_settings.graph_data_path.parents[1] / "fixtures" / "search_benchmark.json"
+    )
+    benchmark = json.loads(benchmark_path.read_text(encoding="utf-8"))
+    for case in benchmark["cases"]:
+        for mode in SEARCH_MODES:
+            key = f"{case['id']}:{mode}"
+            results[key] = [
+                {
+                    "id": item["id"],
+                    "score": item["score"],
+                    "lexical_score": item["lexical_score"],
+                    "semantic_score": item["semantic_score"],
+                    "semantic_cosine": item["semantic_cosine"],
+                }
+                for item in service.search(case["query"], mode=mode, limit=3)
+            ]
+    return {
+        "search_corpus_count": len(documents),
+        "search_corpus_ids": [document["id"] for document in documents],
+        "search_corpus_documents": documents,
+        "search_corpus_signature": service.corpus_signature(),
+        "search_top_k": results,
+    }
+
+
 def main() -> None:
     local_store = GraphStore.from_path(settings.graph_data_path)
     neo4j_settings = Settings(
@@ -130,6 +174,9 @@ def main() -> None:
         neo4j_uri=settings.neo4j_uri,
         neo4j_user=settings.neo4j_user,
         neo4j_password=settings.neo4j_password,
+        search_embedding_model=settings.search_embedding_model,
+        search_embedding_revision=settings.search_embedding_revision,
+        search_hybrid_lexical_weight=settings.search_hybrid_lexical_weight,
     )
 
     try:
@@ -140,6 +187,12 @@ def main() -> None:
 
     local_contract = collect_contract(local_store)
     neo4j_contract = collect_contract(neo4j_store)
+    encoder = SentenceTransformerEncoder(
+        settings.search_embedding_model,
+        settings.search_embedding_revision,
+    )
+    local_contract.update(collect_search_contract(local_store, settings, encoder))
+    neo4j_contract.update(collect_search_contract(neo4j_store, neo4j_settings, encoder))
     failed = []
     for case in local_contract:
         if local_contract[case] == neo4j_contract[case]:

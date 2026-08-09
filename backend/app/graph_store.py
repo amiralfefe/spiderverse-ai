@@ -24,6 +24,18 @@ def normalize(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", " ", value.casefold()).strip()
 
 
+def lexical_score(query: str, node: dict[str, Any]) -> float:
+    needle = normalize(query)
+    if not needle:
+        return 0.0
+    names = [node["label"], *node.get("aliases", [])]
+    normalized_names = [normalize(name) for name in names]
+    exact = needle in normalized_names
+    contains = any(needle in name for name in normalized_names)
+    ratio = max(SequenceMatcher(None, needle, name).ratio() for name in normalized_names)
+    return 1.0 if exact else 0.85 if contains else ratio * 0.7
+
+
 class GraphStore:
     def __init__(self, data: dict[str, Any]) -> None:
         self.meta = data.get("meta", {})
@@ -56,19 +68,11 @@ class GraphStore:
     def search(
         self, query: str, *, node_types: set[str] | None = None, limit: int = 12
     ) -> list[dict[str, Any]]:
-        needle = normalize(query)
-        if not needle:
-            return []
         matches: list[tuple[float, dict[str, Any]]] = []
         for node in self.nodes:
             if node_types and node["type"] not in node_types:
                 continue
-            names = [node["label"], *node.get("aliases", [])]
-            normalized_names = [normalize(name) for name in names]
-            exact = needle in normalized_names
-            contains = any(needle in name for name in normalized_names)
-            ratio = max(SequenceMatcher(None, needle, name).ratio() for name in normalized_names)
-            score = 1.0 if exact else 0.85 if contains else ratio * 0.7
+            score = lexical_score(query, node)
             if score >= 0.34:
                 matches.append((score, node))
         matches.sort(key=lambda item: (-item[0], item[1]["label"], item[1]["id"]))

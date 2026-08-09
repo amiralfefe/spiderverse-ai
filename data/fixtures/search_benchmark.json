@@ -1,0 +1,96 @@
+{
+  "description": "Deterministic Phase 6 search evaluation queries; this file does not extend the graph dataset.",
+  "top_k": 3,
+  "cases": [
+    {
+      "id": "exact-miles",
+      "category": "exact",
+      "query": "Miles Morales",
+      "relevant_ids": ["miles-1610"]
+    },
+    {
+      "id": "alias-ghost-spider",
+      "category": "alias",
+      "query": "Ghost-Spider",
+      "relevant_ids": ["gwen-65"]
+    },
+    {
+      "id": "alias-spider-man-2099",
+      "category": "alias",
+      "query": "Spider-Man 2099",
+      "relevant_ids": ["miguel-928"]
+    },
+    {
+      "id": "alias-spdr",
+      "category": "alias",
+      "query": "SP//dr",
+      "relevant_ids": ["peni-14512"]
+    },
+    {
+      "id": "description-geneticist-2099",
+      "category": "description",
+      "query": "geneticist Spider-Man from 2099",
+      "relevant_ids": ["miguel-928"]
+    },
+    {
+      "id": "description-mech-pilot",
+      "category": "description",
+      "query": "pilot linked to a spider-powered mech",
+      "relevant_ids": ["peni-14512"]
+    },
+    {
+      "id": "description-portals",
+      "category": "description",
+      "query": "scientist who creates interdimensional portals",
+      "relevant_ids": ["spot-616"]
+    },
+    {
+      "id": "description-symbiote-journalist",
+      "category": "description",
+      "query": "journalist bonded to an alien symbiote",
+      "relevant_ids": ["venom-616"]
+    },
+    {
+      "id": "description-lawyer-vigilante",
+      "category": "description",
+      "query": "lawyer and street-level vigilante",
+      "relevant_ids": ["daredevil-616"]
+    },
+    {
+      "id": "description-rebel",
+      "category": "description",
+      "query": "rebellious Spider-Man fighting oppressive systems",
+      "relevant_ids": ["hobie-138"]
+    },
+    {
+      "id": "universe-earth-332",
+      "category": "universe",
+      "query": "motorcycle-riding Spider-Woman from Earth-332",
+      "relevant_ids": ["spider-woman-332"]
+    },
+    {
+      "id": "description-virtual-reality",
+      "category": "description",
+      "query": "digital Spider hero in virtual reality",
+      "relevant_ids": ["spider-byte-22191"]
+    },
+    {
+      "id": "typo-miles",
+      "category": "typo",
+      "query": "Myles Moralez",
+      "relevant_ids": ["miles-1610"]
+    },
+    {
+      "id": "universe-future",
+      "category": "universe",
+      "query": "Spider-Man from the future",
+      "relevant_ids": ["miguel-928"]
+    },
+    {
+      "id": "enemy-symbiote",
+      "category": "enemy",
+      "query": "symbiote enemy",
+      "relevant_ids": ["venom-616", "carnage-616"]
+    }
+  ]
+}

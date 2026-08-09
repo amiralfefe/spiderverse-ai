@@ -63,6 +63,15 @@ class StatsPayload(BaseModel):
     demo_relationships: int
 
 
+class SearchResult(GraphNode):
+    universe_label: str | None = None
+    search_mode: Literal["lexical", "semantic", "hybrid"]
+    score: float
+    lexical_score: float
+    semantic_score: float | None = None
+    semantic_cosine: float | None = None
+
+
 class AnalyticsOverview(BaseModel):
     nodes: int
     relationships: int

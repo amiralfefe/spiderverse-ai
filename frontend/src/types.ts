@@ -21,6 +21,17 @@ export interface GraphNode {
   [key: string]: unknown;
 }
 
+export type SearchMode = "lexical" | "semantic" | "hybrid";
+
+export interface SearchResult extends GraphNode {
+  universe_label?: string | null;
+  search_mode: SearchMode;
+  score: number;
+  lexical_score: number;
+  semantic_score: number | null;
+  semantic_cosine: number | null;
+}
+
 export interface Source {
   source_title: string;
   source_type: string;

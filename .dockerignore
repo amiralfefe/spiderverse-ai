@@ -1,0 +1,14 @@
+.git
+.env
+.venv
+.cache
+.hf-cache
+.torch
+.pytest_cache
+.ruff_cache
+**/__pycache__
+**/*.py[cod]
+frontend
+neo4j-data
+data/neo4j
+reports

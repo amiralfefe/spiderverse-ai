@@ -16,16 +16,19 @@ from backend.app.models import (
     GraphNode,
     GraphPayload,
     PathPayload,
+    SearchResult,
     SimilarityPayload,
     StatsPayload,
 )
 from backend.app.query_service import QueryService
+from backend.app.search_service import SearchMode, SearchService
 
 
 def create_app(store: GraphStore | None = None) -> FastAPI:
     graph_store = store or build_store(settings)
     query_service = QueryService(graph_store)
     analytics_service = GraphAnalyticsService(graph_store)
+    search_service = SearchService(graph_store, settings)
     app = FastAPI(
         title="SpiderVerse AI API",
         version="0.1.0",
@@ -47,14 +50,15 @@ def create_app(store: GraphStore | None = None) -> FastAPI:
     def stats() -> dict:
         return graph_store.stats()
 
-    @app.get("/api/search", response_model=list[GraphNode])
+    @app.get("/api/search", response_model=list[SearchResult])
     def search(
         q: str = Query(min_length=1, max_length=100),
+        mode: SearchMode = "lexical",
         node_type: str | None = None,
         limit: int = Query(default=12, ge=1, le=50),
     ) -> list[dict]:
         types = {node_type} if node_type else None
-        return graph_store.search(q, node_types=types, limit=limit)
+        return search_service.search(q, mode=mode, node_types=types, limit=limit)
 
     @app.get("/api/characters", response_model=list[GraphNode])
     def characters(
@@ -156,6 +160,7 @@ def create_app(store: GraphStore | None = None) -> FastAPI:
 
     app.state.graph_store = graph_store
     app.state.analytics_service = analytics_service
+    app.state.search_service = search_service
     return app
 
 

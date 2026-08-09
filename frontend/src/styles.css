@@ -189,6 +189,22 @@ select:focus-visible {
   font-size: 14px;
 }
 
+.search-mode {
+  max-width: 92px;
+  height: 28px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--border);
+  outline: 0;
+  background: #070e17;
+  color: var(--cyan);
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
 .global-search input::placeholder {
   color: #7d8793;
 }
@@ -255,6 +271,18 @@ select:focus-visible {
   color: var(--muted);
   font-size: 10px;
   text-transform: uppercase;
+}
+
+.search-results .search-score {
+  color: var(--cyan);
+  text-transform: none;
+}
+
+.search-status {
+  margin: 0;
+  padding: 12px 10px;
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .global-error {

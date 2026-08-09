@@ -17,6 +17,8 @@ coverage.xml
 coverage/
 htmlcov/
 .cache/
+.hf-cache/
+.torch/
 .neo4j/
 neo4j-data/
 data/neo4j/

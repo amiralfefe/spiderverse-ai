@@ -9,6 +9,8 @@ import type {
   PathPayload,
   SimilarityPayload,
   Stats,
+  SearchMode,
+  SearchResult,
 } from "./types";
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -27,10 +29,11 @@ export const api = {
     const query = universeId ? `?universe_id=${encodeURIComponent(universeId)}` : "";
     return request<GraphNode[]>(`/api/characters${query}`);
   },
-  search: (query: string, nodeType?: string) => {
+  search: (query: string, nodeType?: string, mode: SearchMode = "lexical") => {
     const params = new URLSearchParams({ q: query });
     if (nodeType) params.set("node_type", nodeType);
-    return request<GraphNode[]>(`/api/search?${params}`);
+    params.set("mode", mode);
+    return request<SearchResult[]>(`/api/search?${params}`);
   },
   character: (id: string) => request<CharacterDetail>(`/api/characters/${id}`),
   graph: (focusId: string, universeId?: string, depth = 1) => {

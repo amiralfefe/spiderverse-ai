@@ -4,13 +4,14 @@ import { api } from "../api";
 import type { GraphNode } from "../types";
 import { BrandMark } from "./BrandMark";
 
-export type AppView = "explore" | "characters" | "universes" | "path";
+export type AppView = "explore" | "characters" | "universes" | "path" | "analytics";
 
 const NAV_ITEMS: { id: AppView; label: string }[] = [
   { id: "explore", label: "Explore" },
   { id: "characters", label: "Characters" },
   { id: "universes", label: "Universes" },
   { id: "path", label: "Path Finder" },
+  { id: "analytics", label: "Analytics" },
 ];
 
 interface AppHeaderProps {

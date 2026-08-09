@@ -34,3 +34,11 @@ def test_json_backend_conformance_contract() -> None:
     assert contract["mentor_question"]["answer"] == (
         "The graph links Miles Morales to Peter B. Parker via MENTORED_BY."
     )
+    assert contract["analytics_overview"]["nodes"] == 164
+    assert contract["analytics_overview"]["relationships"] == 574
+    assert contract["analytics_degree"]["results"][0]["node"]["id"] == "peter-616"
+    assert contract["analytics_betweenness"]["results"][0]["node"]["id"] == (
+        "peter-616"
+    )
+    assert contract["analytics_communities"]["algorithm"] == "greedy_modularity"
+    assert contract["analytics_miles_similarity"]["source"]["id"] == "miles-1610"

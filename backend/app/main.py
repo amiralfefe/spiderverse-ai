@@ -3,15 +3,20 @@ from __future__ import annotations
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.app.analytics_service import CentralityMetric, GraphAnalyticsService
 from backend.app.config import settings
 from backend.app.graph_store import GraphStore, build_store
 from backend.app.models import (
+    AnalyticsOverview,
     AskRequest,
     AskResponse,
+    CentralityPayload,
     CharacterDetail,
+    CommunitiesPayload,
     GraphNode,
     GraphPayload,
     PathPayload,
+    SimilarityPayload,
     StatsPayload,
 )
 from backend.app.query_service import QueryService
@@ -20,6 +25,7 @@ from backend.app.query_service import QueryService
 def create_app(store: GraphStore | None = None) -> FastAPI:
     graph_store = store or build_store(settings)
     query_service = QueryService(graph_store)
+    analytics_service = GraphAnalyticsService(graph_store)
     app = FastAPI(
         title="SpiderVerse AI API",
         version="0.1.0",
@@ -120,7 +126,36 @@ def create_app(store: GraphStore | None = None) -> FastAPI:
     def ask(payload: AskRequest) -> dict:
         return query_service.ask(payload.question)
 
+    @app.get("/api/analytics/overview", response_model=AnalyticsOverview)
+    def analytics_overview() -> dict:
+        return analytics_service.overview()
+
+    @app.get("/api/analytics/centrality", response_model=CentralityPayload)
+    def analytics_centrality(
+        metric: CentralityMetric,
+        node_type: str | None = None,
+        limit: int = Query(default=10, ge=1, le=100),
+    ) -> dict:
+        return analytics_service.centrality(metric, node_type=node_type, limit=limit)
+
+    @app.get("/api/analytics/communities", response_model=CommunitiesPayload)
+    def analytics_communities(
+        min_size: int = Query(default=2, ge=1, le=100),
+    ) -> dict:
+        return analytics_service.communities(min_size=min_size)
+
+    @app.get("/api/analytics/similarity/{character_id}", response_model=SimilarityPayload)
+    def analytics_similarity(
+        character_id: str,
+        limit: int = Query(default=10, ge=1, le=100),
+    ) -> dict:
+        character = graph_store.get_node(character_id)
+        if character is None or character["type"] != "Character":
+            raise HTTPException(status_code=404, detail="Character not found")
+        return analytics_service.similarity(character_id, limit=limit)
+
     app.state.graph_store = graph_store
+    app.state.analytics_service = analytics_service
     return app
 
 

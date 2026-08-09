@@ -9,6 +9,7 @@ description = "Knowledge Graph and GraphRAG explorer"
 requires-python = ">=3.11"
 dependencies = [
   "fastapi>=0.115,<1",
+  "networkx==3.6.1",
   "pydantic>=2.8,<3",
   "uvicorn[standard]>=0.30,<1",
 ]

@@ -4,6 +4,7 @@ import json
 from collections.abc import Mapping
 from typing import Any
 
+from backend.app.analytics_service import GraphAnalyticsService
 from backend.app.config import Settings, settings
 from backend.app.graph_store import GraphStore, load_neo4j
 from backend.app.query_service import QueryService
@@ -50,6 +51,7 @@ def collect_contract(store: GraphStore) -> dict[str, Any]:
     neighborhood = store.neighborhood("miles-1610", depth=1, limit=100)
     path = store.shortest_path("miles-1610", "daredevil-616")
     ask = QueryService(store).ask("Who mentored Miles Morales?")
+    analytics = GraphAnalyticsService(store)
 
     return {
         "stats": _canonical(store.stats()),
@@ -106,6 +108,17 @@ def collect_contract(store: GraphStore) -> dict[str, Any]:
             "graph": _graph(ask["graph"]),
             "sources": _sources(ask["sources"]),
         },
+        "analytics_overview": _canonical(analytics.overview()),
+        "analytics_degree": _canonical(
+            analytics.centrality("degree", node_type="Character", limit=10)
+        ),
+        "analytics_betweenness": _canonical(
+            analytics.centrality("betweenness", node_type="Character", limit=10)
+        ),
+        "analytics_communities": _canonical(analytics.communities(min_size=2)),
+        "analytics_miles_similarity": _canonical(
+            analytics.similarity("miles-1610", limit=10)
+        ),
     }
 
 

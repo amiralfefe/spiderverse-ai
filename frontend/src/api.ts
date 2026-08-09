@@ -1,9 +1,13 @@
 import type {
+  AnalyticsOverview,
   AskResponse,
   CharacterDetail,
+  CentralityPayload,
+  CommunitiesPayload,
   GraphNode,
   GraphPayload,
   PathPayload,
+  SimilarityPayload,
   Stats,
 } from "./types";
 
@@ -44,4 +48,23 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question }),
     }),
+  analyticsOverview: () => request<AnalyticsOverview>("/api/analytics/overview"),
+  analyticsCentrality: (
+    metric: "degree" | "betweenness",
+    nodeType = "Character",
+    limit = 10,
+  ) => {
+    const params = new URLSearchParams({
+      metric,
+      node_type: nodeType,
+      limit: String(limit),
+    });
+    return request<CentralityPayload>(`/api/analytics/centrality?${params}`);
+  },
+  analyticsCommunities: (minSize = 2) =>
+    request<CommunitiesPayload>(`/api/analytics/communities?min_size=${minSize}`),
+  analyticsSimilarity: (characterId: string, limit = 10) =>
+    request<SimilarityPayload>(
+      `/api/analytics/similarity/${encodeURIComponent(characterId)}?limit=${limit}`,
+    ),
 };

@@ -22,6 +22,9 @@ const DEFAULT_RELATIONSHIPS = new Set([
 const GraphCanvas = lazy(() =>
   import("./components/GraphCanvas").then((module) => ({ default: module.GraphCanvas })),
 );
+const AnalyticsView = lazy(() =>
+  import("./views/AnalyticsView").then((module) => ({ default: module.AnalyticsView })),
+);
 
 export default function App() {
   const [view, setView] = useState<AppView>("explore");
@@ -196,6 +199,11 @@ export default function App() {
       {view === "characters" ? <CharacterBrowser characters={characters} universes={universes} onSelect={showExplore} /> : null}
       {view === "universes" ? <UniverseBrowser universes={universes} onSelect={showExplore} /> : null}
       {view === "path" ? <PathFinder characters={characters} onPathFound={showPath} /> : null}
+      {view === "analytics" ? (
+        <Suspense fallback={<div className="canvas-loading">Computing graph analytics…</div>}>
+          <AnalyticsView characters={characters} />
+        </Suspense>
+      ) : null}
     </div>
   );
 }

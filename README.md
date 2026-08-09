@@ -12,6 +12,8 @@ SpiderVerse AI is a graph-first exploration tool for characters, variants, unive
 - Search, entity details, neighborhood expansion, universe filtering, and shortest-path queries.
 - A graph-grounded `Ask` endpoint that answers from retrieved graph facts without an LLM.
 - A React + TypeScript + Cytoscape.js explorer with character, universe, and path-finder views.
+- Deterministic graph analytics for degree, betweenness, communities, and structural character similarity.
+- A dedicated React Analytics view with rankings, community membership, and shared-neighbor evidence.
 - Docker Compose for frontend, backend, and Neo4j.
 - Backend tests, frontend checks, and GitHub Actions CI.
 
@@ -75,6 +77,24 @@ python scripts/compare_backends.py
 
 The API contract stays the same in both modes. The reference integrity and traversal queries
 are documented in [docs/reference-cypher.md](docs/reference-cypher.md).
+
+## Graph analytics
+
+Phase 5 computes analytics from the same `GraphStore` snapshot used by the JSON and Neo4j
+backends. It uses an undirected simple projection, so parallel relationships between the same
+two entities count once in structural metrics while the original relationship count remains
+available in the overview.
+
+Available endpoints:
+
+- `GET /api/analytics/overview`
+- `GET /api/analytics/centrality?metric=degree&node_type=Character&limit=10`
+- `GET /api/analytics/centrality?metric=betweenness&node_type=Character&limit=10`
+- `GET /api/analytics/communities?min_size=2`
+- `GET /api/analytics/similarity/miles-1610?limit=10`
+
+Implementation choices, measured V1 results, limitations, and reproduction commands are in
+[the Phase 5 report](reports/phase5_graph_analytics.md).
 
 ## Important data note
 
